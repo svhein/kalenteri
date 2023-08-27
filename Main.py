@@ -4,6 +4,9 @@ import calendar;
 import datetime;
 import keyboard;
 import curses;
+import json;
+
+from curses.textpad import Textbox
 
 cal = calendar.TextCalendar(calendar.SUNDAY)
 
@@ -58,7 +61,7 @@ VIIKONPAIVAT = {
 # VIIKONPAIVA = datetime.date.today().isocalendar()[2]
 # PAIVA_NUMERO = datetime.date.today().day
 
-class Calendar():
+class Kalenteri():
     def __init__(self):
         
         self.stdscr = curses.initscr()
@@ -66,6 +69,8 @@ class Calendar():
         curses.start_color()
         curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_BLUE, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
+        curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
         
         self.vuosi = datetime.date.today().isocalendar()[0]
         self.kuukausi = datetime.date.today().month
@@ -73,46 +78,97 @@ class Calendar():
         self.viikonpaiva = datetime.date.today().isocalendar()[2]
         self.paiva = datetime.date.today().day
         
-        self.mode = "viikko" # viikko tai kuukausi
-        
+        self.mode = "viikko" # viikko tai kuukausi    
         self.selectedPaiva = 1
+        
+        self.kirjoitusPaalla = False
+        self.user_input = ""
+        
+        f = open("muistutukset.json", "r")
+        self.muistiinPanot = json.load(f)
         
         self.render()
         
+    def run(self):
         while True:
             event = keyboard.read_event()
             if event.event_type == keyboard.KEY_DOWN:
-                self.kasittelePainallus(event.name, self.mode)
-                self.render()
-                
+                if (self.kirjoitusPaalla == False):
+                    self.kasittelePainallus(event.name, self.mode)
+                    if (event.name != "enter" or self.kirjoitusPaalla == False):
+                        self.render()
+                    
     def render(self):
         
-            
+            self.stdscr.clear()
         
-            self.stdscr.addstr(1, 0, f"{self.vuosi} Viikko {self.viikko}")
-            self.stdscr.addstr(2, 0, "Maanantai", None)
-            self.stdscr.addstr(3, 0, "Tiistai")
-            self.stdscr.addstr(4, 0, "Keskiviikko")
-            self.stdscr.addstr(5, 0, "Torstai")
-            self.stdscr.addstr(6, 0, "Perjantai")
-            self.stdscr.addstr(7, 0, "Lauantai")
-            self.stdscr.addstr(8, 0, "Sunnuntai")
+            self.stdscr.addstr(1, 0, f"{self.vuosi} - {self.getKuukausi(self.viikko)} - Viikko {self.viikko}", curses.color_pair(4))
+            self.stdscr.addstr(2, 0, f"{self.getPaivaNumero(1, self.viikko)}. Maanantai", self.getViikonPaivaVari(1))
+            self.stdscr.addstr(3, 0, f"{self.getPaivaNumero(2, self.viikko)}. Tiistai", self.getViikonPaivaVari(2))
+            self.stdscr.addstr(4, 0, f"{self.getPaivaNumero(3, self.viikko)}. Keskiviikko", self.getViikonPaivaVari(3))
+            self.stdscr.addstr(5, 0, f"{self.getPaivaNumero(4, self.viikko)}. Torstai", self.getViikonPaivaVari(4))
+            self.stdscr.addstr(6, 0, f"{self.getPaivaNumero(5, self.viikko)}. Perjantai", self.getViikonPaivaVari(5))
+            self.stdscr.addstr(7, 0, f"{self.getPaivaNumero(6, self.viikko)}. Lauantai", self.getViikonPaivaVari(6))
+            self.stdscr.addstr(8, 0, f"{self.getPaivaNumero(7, self.viikko)}. Sunnuntai", self.getViikonPaivaVari(7))
+            self.stdscr.addstr(9, 0, f"")
             
+            self.stdscr.addstr(2, 25, f"{self.haeMuistutus(self.vuosi, self.viikko, 1)}", curses.color_pair(3))
+            self.stdscr.addstr(3, 25, f"{self.haeMuistutus(self.vuosi, self.viikko, 2)}", curses.color_pair(3))
+            self.stdscr.addstr(4, 25, f"{self.haeMuistutus(self.vuosi, self.viikko, 3)}", curses.color_pair(3))
+            self.stdscr.addstr(5, 25, f"{self.haeMuistutus(self.vuosi, self.viikko, 4)}", curses.color_pair(3))
+            self.stdscr.addstr(6, 25, f"{self.haeMuistutus(self.vuosi, self.viikko, 5)}", curses.color_pair(3))
+            self.stdscr.addstr(7, 25, f"{self.haeMuistutus(self.vuosi, self.viikko, 6)}", curses.color_pair(3))
+            self.stdscr.addstr(8, 25, f"{self.haeMuistutus(self.vuosi, self.viikko, 7)}", curses.color_pair(3))
+            
+
             self.stdscr.refresh()
-           
+            
+    def renderUusiMuistutus(self):
+        self.stdscr.clear()
+        # self.kirjoitusPaalla = True
+        self.stdscr.addstr(1, 0, f"Lisää uusi muistutus", curses.color_pair(4))
+        self.stdscr.addstr(2, 0, f"{str(datetime.date.fromisocalendar(self.vuosi, self.viikko, self.selectedPaiva))}", curses.color_pair(4))
+        self.stdscr.addstr(3, 0, f"{self.user_input}", curses.color_pair(4))
+        
+        def is_letter(key):
+            return ord('a') <= key <= ord('z') or ord('A') <= key <= ord('Z')
+        
+        while (True):
+            key = self.stdscr.getch()
+            if key == 10:  # Enter key
+                # self.kirjoitusPaalla = False
+                self.render()
+                break
+            elif key == 27:  # Escape key
+                self.user_input = ""
+            elif key == curses.KEY_BACKSPACE:
+                self.user_input = self.user_input[:-1]
+            else:
+                if (is_letter(key)): self.user_input += chr(key)
+            
+            self.renderUusiMuistutus()
+                
+        
+        
     def setEdellinenViikko(self):
         if (self.viikko == 1):
-            self.viikko = 52
+            if (self.onKarkausVuosi(self.vuosi - 1)):
+                self.viikko = 53
+            else:
+                self.viikko = 52
+                self.vuosi -= 1
         else: 
             self.viikko -= 1
             
     def setSeuraavaViikko(self):
-        if (self.viikko == 52):
+        if self.viikko == 52 or (self.viikko == 53 and not self.onKarkausVuosi(self.vuosi)):
             self.viikko = 1
+            self.vuosi +=  1
         else: 
             self.viikko += 1
             
     def setSeuraavaKuukausi(self):
+        self.getPaivaNumero()
         if (self.kuukausi == 12):
             self.kuukausi = 1
             self.vuosi += 1
@@ -126,6 +182,25 @@ class Calendar():
         else:
             self.kuukausi -= 1
             
+    def setSeuraavaViikonPaiva(self):
+        if (self.selectedPaiva == 7):
+            self.selectedPaiva = 1
+        else: 
+            self.selectedPaiva += 1
+            
+    def setEdellinenViikonPaiva(self):
+        if (self.selectedPaiva == 1):
+            self.selectedPaiva = 7
+        else: 
+            self.selectedPaiva -= 1
+    
+    def getPaivaNumero(self, viikonpaiva: int, viikkoNumero: int):
+        return str(datetime.date.fromisocalendar(self.vuosi, viikkoNumero, viikonpaiva)).split("-")[2]
+    
+    # Alkavan viikon kuukausi
+    def getKuukausi(self, viikkoNumero:int):
+        kuukausiNumero = int(str(datetime.date.fromisocalendar(self.vuosi, viikkoNumero, 1)).split("-")[1])
+        return KUUKAUDET[kuukausiNumero]
             
     def kasittelePainallus(self, eventName, mode):
         match eventName:
@@ -133,9 +208,37 @@ class Calendar():
                 self.setEdellinenViikko() if mode == "viikko" else self.setEdellinenKuukausi()
             case "oikea nuoli":
                 self.setSeuraavaViikko() if mode == "viikko" else self.setSeuraavaKuukausi()
-            
-    def getViikonPaivaVari(self):
-        if ()
+            case "ylänuoli":
+                self.setEdellinenViikonPaiva()
+            case "alanuoli":
+                self.setSeuraavaViikonPaiva()
+            case "enter":
+                self.renderUusiMuistutus()
+                if (self.mode == "viikko"):
+                    # self.lisaaMuistutus(self.vuosi, self.viikko, self.selectedPaiva)
+                    pass
+                    
+    def lisaaMuistutus(self, vuosi, viikko, viikonpaiva, muistutus: str):
+        paivamaara = str(datetime.date.fromisocalendar(vuosi, viikko, viikonpaiva))
+        self.muistiinPanot[paivamaara] = muistutus
+        with open("muistutukset.json") as f:
+            json.dump(self.muistiinPanot, f, indent=4)
+    
+    def haeMuistutus(self, vuosi, viikko, viikonpaiva) -> str:
+        paivamaara  = str(datetime.date.fromisocalendar(vuosi, viikko, viikonpaiva))
+        if (paivamaara in self.muistiinPanot):
+            return self.muistiinPanot[paivamaara]
+        else:
+            return "-"
+    
+    def getViikonPaivaVari(self, viikonpaiva: int):
+        if (self.selectedPaiva == viikonpaiva):
+            return curses.color_pair(2)
+        else:
+            return curses.color_pair(1)
+        
+    def onKarkausVuosi(self, vuosi) -> bool:
+        return (vuosi % 4 == 0 and vuosi % 100 != 0) or (vuosi % 400 == 0)
            
     # def setEdellinenViikonPaiva(self):
     #     if (self.viikonpaiva == 1):
@@ -150,8 +253,10 @@ class Calendar():
     #         self.viikonpaiva += 1
             
     
-           
-
-cal = Calendar()
+def main(stdscr):
+    kalenteri = Kalenteri()
+    kalenteri.run()
+    
+curses.wrapper(main)
         
         
