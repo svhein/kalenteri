@@ -94,6 +94,7 @@ class Kalenteri():
                 self.kasittelePainallus(key, self.mode)
                 self.render()
     
+    # renderöi oikea näkymä riippuen modesta
     def render(self):
         if (self.mode == "viikko"):
             return self.renderViikkoNakyma()
@@ -187,7 +188,8 @@ class Kalenteri():
             self.stdscr.addstr(3 + i, 8 * 5, f"{muistutukset[i]['paiva']}. Päivä {muistutukset[i]['muistutus']}", curses.color_pair(3))
          
         self.stdscr.addstr(10, 0, f"o: Ohje", curses.color_pair(5))
-         
+       
+    ## renderöi uusi muistutus näkymä  
     def renderUusiMuistutus(self):
         self.stdscr.clear()
         self.kirjoitusPaalla = True
@@ -231,6 +233,7 @@ class Kalenteri():
         self.stdscr.clear()
         self.stdscr.addstr(1, 0, f"Viikkonäkymä:", curses.color_pair(7))
         self.stdscr.addstr(2, 0, f"Nuolinäppäimet: Vaihda päivää / viikkoa", curses.color_pair(4))
+        self.stdscr.addstr(3, 0, f"tai W-A-S-D", curses.color_pair(4))
         self.stdscr.addstr(6, 0, f"Enter: Lisää muistutus", curses.color_pair(4))
         self.stdscr.addstr(7, 0, f"p: Poista muistutus", curses.color_pair(4))
         self.stdscr.addstr(8, 0, f"m: Vaihda näkymää", curses.color_pair(4))
@@ -328,9 +331,9 @@ class Kalenteri():
             case 454: # oikea nuoli
                 self.setSeuraavaViikko() if mode == "viikko" else self.setSeuraavaKuukausi()
             case 450: # ylänuoli
-                self.setEdellinenViikonPaiva()
+                self.setEdellinenViikonPaiva() 
             case 456: # alanuoli
-                self.setSeuraavaViikonPaiva()
+                self.setSeuraavaViikonPaiva() 
             case 10: # enter
                 self.renderUusiMuistutus()
             case 112: # p
@@ -341,13 +344,13 @@ class Kalenteri():
                 self.mode = "kuukausi" if self.mode == "viikko" else "viikko"
                 self.render()
             case 97: # a
-                self.decreaseY()
-            case 100: # d
-                self.increaseY()
+                self.decreaseY() if mode == "kuukausi" else self.setEdellinenViikko()
+            case 100: # d 
+                self.increaseY() if mode == "kuukausi" else self.setSeuraavaViikko() 
             case 119: # w
-                self.decreaseX()
+                self.decreaseX() if mode == "kuukausi" else self.setEdellinenViikonPaiva()
             case 115: # s
-                self.increaseX()
+                self.increaseX() if mode == "kuukausi" else self.setSeuraavaViikonPaiva()
             
     def lisaaMuistutus(self, vuosi=None, viikko=None, viikonpaiva=None, paivamaara=None, muistutus: str = None):
         """1.Vaihtoehto vuosi, viikko, viikonpaiva ja muistutus \n
