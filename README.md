@@ -11,7 +11,7 @@ Käytä `W`, `A`, `S` ja `D` -näppäimiä vaihtaaksesi päivää.
 
 ### Muistutuksen lisääminen ja poistaminen
 
-Voit lisätä uuden muistutuksen painamalla `Enter`-näppäintä. Voit poistaa muistutuksen painamalla `p`.
+Voit lisätä uuden muistutuksen painamalla `Enter` tai `l`-näppäintä. Voit poistaa muistutuksen painamalla `p`.
 
 ### Näkymän vaihtaminen
 
