@@ -236,7 +236,7 @@ class Kalenteri():
         self.stdscr.addstr(1, 0, f"Viikkonäkymä:", curses.color_pair(7))
         self.stdscr.addstr(2, 0, f"Nuolinäppäimet: Vaihda päivää / viikkoa", curses.color_pair(4))
         self.stdscr.addstr(3, 0, f"tai W-A-S-D", curses.color_pair(4))
-        self.stdscr.addstr(6, 0, f"Enter: Lisää muistutus", curses.color_pair(4))
+        self.stdscr.addstr(6, 0, f"Enter tai l: Lisää muistutus", curses.color_pair(4))
         self.stdscr.addstr(7, 0, f"p: Poista muistutus", curses.color_pair(4))
         self.stdscr.addstr(8, 0, f"m: Vaihda näkymää", curses.color_pair(4))
         
@@ -336,7 +336,7 @@ class Kalenteri():
                 self.setEdellinenViikonPaiva() 
             case 456 | 258: # alanuoli
                 self.setSeuraavaViikonPaiva() 
-            case 10: # enter
+            case 10 | 108: # enter
                 self.renderUusiMuistutus()
             case 112: # p
                 print(f"Poistetaan muistutus {self.vuosi, self.viikko, self.selectedPaiva}")
