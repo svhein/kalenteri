@@ -338,7 +338,7 @@ class Kalenteri():
                 self.renderUusiMuistutus()
             case 112: # p
                 print(f"Poistetaan muistutus {self.vuosi, self.viikko, self.selectedPaiva}")
-                self.poistaMuistutus(self.vuosi, self.viikko, self.selectedPaiva + 1)
+                self.poistaMuistutus(self.vuosi, self.viikko, self.selectedPaiva + 1) if self.mode == "kuukausi" else self.poistaMuistutus(self.vuosi, self.viikko, self.selectedPaiva)
                 self.render()
             case 109: # m
                 self.mode = "kuukausi" if self.mode == "viikko" else "viikko"
