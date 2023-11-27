@@ -40,6 +40,10 @@ sudo apt-get install python3-curses
 #
 
 ```bash
+cd kalenteri
+```
+
+```bash
 python main.py
 ```
 
