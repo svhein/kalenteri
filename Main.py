@@ -123,6 +123,7 @@ class Kalenteri():
         self.stdscr.addstr(8, 25, f"{self.haeMuistutus(self.vuosi, self.viikko, 7)}", curses.color_pair(3))
         
         self.stdscr.addstr(10, 0, f"o: Ohje", curses.color_pair(5))
+        self.stdscr.addstr(10, 10, f"m: Vaihda näkymää", curses.color_pair(5))
         
             
         self.stdscr.refresh()
@@ -188,6 +189,7 @@ class Kalenteri():
             self.stdscr.addstr(3 + i, 8 * 5, f"{muistutukset[i]['paiva']}. Päivä {muistutukset[i]['muistutus']}", curses.color_pair(3))
          
         self.stdscr.addstr(10, 0, f"o: Ohje", curses.color_pair(5))
+        self.stdscr.addstr(10, 10, f"m: Vaihda näkymää", curses.color_pair(5))
        
     ## renderöi uusi muistutus näkymä  
     def renderUusiMuistutus(self):
