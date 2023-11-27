@@ -88,6 +88,7 @@ class Kalenteri():
         
         while True:
             key = self.stdscr.getch()
+            print('key pressed', key)
             if (key == 111):
                 self.renderOhje()
             else:
@@ -125,7 +126,6 @@ class Kalenteri():
         self.stdscr.addstr(10, 0, f"o: Ohje", curses.color_pair(5))
         self.stdscr.addstr(10, 10, f"m: Vaihda näkymää", curses.color_pair(5))
         
-            
         self.stdscr.refresh()
         
     def renderKuukausiNakyma(self):
@@ -328,13 +328,13 @@ class Kalenteri():
             
     def kasittelePainallus(self, eventName, mode):
         match eventName:
-            case 452: # vasen nuoli
+            case 452 | 260: # vasen nuoli
                 self.setEdellinenViikko() if mode == "viikko" else self.setEdellinenKuukausi()
-            case 454: # oikea nuoli
+            case 454 | 261: # oikea nuoli
                 self.setSeuraavaViikko() if mode == "viikko" else self.setSeuraavaKuukausi()
-            case 450: # ylänuoli
+            case 450 | 259: # ylänuoli
                 self.setEdellinenViikonPaiva() 
-            case 456: # alanuoli
+            case 456 | 258: # alanuoli
                 self.setSeuraavaViikonPaiva() 
             case 10: # enter
                 self.renderUusiMuistutus()
