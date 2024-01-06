@@ -17,6 +17,11 @@ Voit lisätä uuden muistutuksen painamalla `Enter` tai `l`-näppäintä. Voit p
 
 Vaihda näkymää painalla `m`-näppäintä.
 
+### Kuva
+
+![image](https://github.com/svhein/kalenteri/assets/79382942/f56cc0d1-8d8d-4dfa-bb9c-b0cd77a4e0b5)
+
+
 
 ## Vaatimukset
 
